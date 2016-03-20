@@ -1,4 +1,62 @@
 RowersList = new Mongo.Collection("rowers");
+AttendanceList = new Mongo.Collection("attendance");
+//each rower's buttons should update every day. on march 17 alex meredith was green red yellow green red yellow and kevin yue was yellow red green
+//yellow red green
+//updateAttendance();
+
+function updateMon(){
+  RowersList.find().forEach(function(obj){
+    var userId = obj._id;
+    var newAtMon = obj.atTues;
+    var newAtTues = obj.atWed;
+    var newAtWed = obj.atThurs;
+    var newAtThurs = obj.atFri;
+    var newAtFri = obj.atSat;
+    var newAtSat ='gray';
+    RowersList.update(userId, {$set: {
+      atMon: newAtMon, 
+      atTues: newAtTues,
+      atWed: newAtWed,
+      atThurs: newAtThurs,
+      atFri: newAtFri,
+      atSat: newAtSat
+    }});
+  });
+}
+
+function getTodaysDateInMs(){
+  var today = new Date();
+  var n = today.getTime();
+  return Math.floor((n-25200000)/86400000);
+}
+function getTodaysDate(){
+  var today = new Date();
+  var dOfW = today.getDay();
+  var month = today.getMonth();
+  var dOfM = today.getDate();
+  var leap = today.getFullYear()%4;
+  var daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  if(dOfW!==0){
+    return "".concat(daysOfWeek[dOfW]).concat(" ").concat(months[month]).concat(" ").concat(dOfM);
+  } else {
+    dOfW++;
+    if(dOfW > 6){
+      dOfW = 0;
+    }
+    dOfM++;
+    if(dOfM > 31||(month===3||month===5||month===8||month===10)&&dOfM>30||(month===1&&dOfM>28)&&leap!==0||(month===1&&leap===0&&dOfM>29)) {
+      dOfM = 1;
+      month++;
+      if(month > 11) {
+        month = 0;
+        leap++;
+      }
+    }
+    return " ".concat(daysOfWeek[dOfW]).concat(" ").concat(months[month]).concat(" ").concat(dOfM);
+  } 
+}
+
 if (Meteor.isClient) {
   Template.login.helpers({
     'notLoggedIn': function(){
@@ -22,19 +80,40 @@ if (Meteor.isClient) {
     'date': function(){
       var today = new Date();
       var dOfW = today.getDay();
-      var dOfM = today.getDate();
       var month = today.getMonth();
+      var dOfM = today.getDate();
+      var leap = today.getFullYear()%4;
       var daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      if(dOfW!==0) {
-        return " ".concat(daysOfWeek[dOfW]).concat(" ").concat(months[month]).concat(" ").concat(dOfM);
+      var arrToReturn = ["a", "b", "c", "d", "e", "f"];
+      var i = 0;
+      while(i<6){
+        if(dOfW!==0){
+          i++;
+          arrToReturn[i-1] = " ".concat(daysOfWeek[dOfW]).concat(" ").concat(months[month]).concat(" ").concat(dOfM);
+        }
+        dOfW++;
+        if(dOfW > 6){
+          dOfW = 0;
+        }
+        dOfM++;
+        if(dOfM > 31||(month===3||month===5||month===8||month===10)&&dOfM>30||(month===1&&dOfM>28)&&leap!==0||(month===1&&leap===0&&dOfM>29)) {
+          dOfM = 1;
+          month++;
+          if(month > 11){
+            month = 0;
+            leap++;
+          }
+        }
       }
+      return arrToReturn;
     }
   })
   Template.login.events({
     'submit form': function(event){
       event.preventDefault();
       var passwordInput = document.getElementById('password').value;
+      var todaysDate = getTodaysDateInMs();
       if(Session.get("addNewUser")) {
         var firstnameInput = document.getElementById('firstname').value.trim();
         var lastnameInput = document.getElementById('lastname').value.trim();
@@ -51,6 +130,7 @@ if (Meteor.isClient) {
           RowersList.insert({
             username: usernameInput,
             password: passwordInput,
+            mostRecentlyAccessed: todaysDate,
             captain: false,
             atRecord: 0,
             atMon: 'gray',
@@ -70,12 +150,19 @@ if (Meteor.isClient) {
         var usernameInput = document.getElementById('pickUser').value;
         var users = RowersList.find({username: usernameInput}).fetch();
         var dbPassword = users[0].password;
+        var userId = users[0]._id;
+        var whenAccessed = users[0].mostRecentlyAccessed;
+        console.log(userId);
         console.log(passwordInput);
         console.log(users[0].password);
         if(dbPassword===passwordInput) {
           Session.set("incorrectPassword", false);
           Session.set("loggedIn", true);
           Session.set("currentUser", usernameInput);
+          for(i = 0; i < (todaysDate-whenAccessed); i++){
+            updateMon();
+          }
+          RowersList.update(userId, {$set: {mostRecentlyAccessed: todaysDate}});
         } else {
           Session.set("incorrectPassword", true);
         }
@@ -137,6 +224,9 @@ if (Meteor.isClient) {
     },
     'click .addNew': function(){
       Session.set("addNewUser", true);
+    },
+    'click .back': function(){
+      Session.set("addNewUser", false);
     }
   })
 }
