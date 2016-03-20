@@ -1,0 +1,25 @@
+body{
+	text-align: center;
+	font-family: "Gibson", "Helvetica Neue", "HelveticaNeue", Helvetica, Arial, sans-serif;
+	color: #0B8AA3;
+}
+.roundCorners {
+	border:2px solid #0B8AA3;
+	border-radius:20px;
+	height: 33px;
+	width: 300px;
+	font-size:15px;
+	padding-left: 12px;
+	margin-bottom: 5px;
+}
+.addNew, .login {
+	background-color:#47CC8A;
+	border:2px solid #47CC8A;
+	border-radius:20px;
+	font-family: "Gibson", "Helvetica Neue", "HelveticaNeue", Helvetica, Arial, sans-serif;
+	width: 150px;
+	font-size: 15px;
+	margin-left: 5px;
+	margin-right: 5px;
+	color:#fff;
+}
