@@ -8,21 +8,26 @@
 	{{#if notLoggedIn}}
 		<form method="post">
 			{{#if exists}}
-				<select id="pickUser">
+				Select User: <br>
+				<select id="pickUser" class="roundCorners">
 					{{#each rower}}
 						<option id="dd{{_id}}">{{username}}</option>					
 					{{/each}}
 				</select>
-				<br><input type="button" id="addNew" class="addNew" value="Add another user"><br>
+				<input type="button" id="addNew" class="addNew" value="Add another user"><br>
+				Password:<br>
+				<input type="text" class="roundCorners" id="password" name="password">
+				<input type="submit" class="login" value="Log In">
 			{{else}}
 				First name: <br>
-				<input type="text" id="firstname" name="firstname"><br>
+				<input type="text" id="firstname" class="roundCorners" name="firstname"><br>
 				Last name:<br>
-				<input type="text" id="lastname" name="lastname"><br>
+				<input type="text" id="lastname" class="roundCorners" name="lastname"><br>
+				Password:<br>
+				<input type="text" id="password" class="roundCorners" name="password"><br>
+				<input type="submit" class="login" value="Log In">
+				<input type="button" class="back" value="Back"><br>
 			{{/if}}
-			Password:<br>
-			<input type="text" id="password" name="password">
-			<input type="submit" class="login" value="Log In">
 		</form>
 		{{#if incorrectPassword}}
 			<p> Incorrect password </p>
@@ -31,15 +36,25 @@
 			<p> User already exists </p>
 		{{/if}}
 	{{else}}
-			<p> {{date}} </p>
-		{{#each rower}}
-			{{username}} 
-			<input type="button" class="attendance" id="1{{_id}}" style="background-color: {{atMon}}">
-			<input type="button" class="attendance" id="2{{_id}}" style="background-color: {{atTues}}">
-			<input type="button" class="attendance" id="3{{_id}}" style="background-color: {{atWed}}">
-			<input type="button" class="attendance" id="4{{_id}}" style="background-color: {{atThurs}}">
-			<input type="button" class="attendance" id="5{{_id}}" style="background-color: {{atFri}}">
-			<input type="button" class="attendance" id="6{{_id}}" style="background-color: {{atSat}}"><br>
+		<table style="width:100%">
+		<tr>
+		<td>Name</td>
+		{{#each date}}
+		<td>{{.}}</td>
 		{{/each}}
+		</tr>
+		{{#each rower}}
+			<tr>
+			<td>{{username}}</td>
+			<td><input type="button" class="attendance" id="1{{_id}}" style="background-color: {{atMon}}"></td>
+			<td><input type="button" class="attendance" id="2{{_id}}" style="background-color: {{atTues}}"></td>
+			<td><input type="button" class="attendance" id="3{{_id}}" style="background-color: {{atWed}}"></td>
+			<td><input type="button" class="attendance" id="4{{_id}}" style="background-color: {{atThurs}}"></td>
+			<td><input type="button" class="attendance" id="5{{_id}}" style="background-color: {{atFri}}"></td>
+			<td><input type="button" class="attendance" id="6{{_id}}" style="background-color: {{atSat}}"></td>
+			</tr>
+		{{/each}}
+		</table>
 	{{/if}}
 </template>
+
